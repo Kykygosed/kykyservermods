@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kykylauncher — Panneau de config</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<style>
+  :root{
+    --bg: #101013;
+    --panel: #17171c;
+    --panel-2: #1e1e25;
+    --line: #2a2a33;
+    --text: #e9e9ee;
+    --muted: #8a8a93;
+    --accent: #5CD65C;
+    --accent-dim: #234d23;
+    --danger: #e2554f;
+    --mono: 'JetBrains Mono', 'Consolas', 'SFMono-Regular', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 8% -10%, #1a2e1a 0%, transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height:100vh;
+    padding: 48px 24px 96px;
+  }
+  .wrap{ max-width: 780px; margin: 0 auto; }
+
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::before{ content:"⛏"; font-size:14px; }
+
+  h1{
+    font-size: 30px;
+    margin: 10px 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .sub{ color: var(--muted); margin: 0 0 36px; font-size: 14.5px; }
+
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card h2{
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin: 0 0 18px;
+    font-weight: 600;
+  }
+
+  .grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+  .field.full{ grid-column: 1 / -1; }
+  label{ font-size: 12.5px; color: var(--muted); }
+  input, select{
+    background: var(--bg);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: var(--mono);
+    outline: none;
+    transition: border-color .15s;
+  }
+  input::placeholder{ color:#55555f; }
+  input:focus, select:focus{ border-color: var(--accent); }
+  select{ font-family: inherit; }
+
+  .mod-row{
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .mod-row-head{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom: 12px;
+  }
+  .mod-index{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent);
+  }
+  .remove-btn{
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--danger);
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+  }
+  .remove-btn:hover{ background: rgba(226,85,79,.1); border-color: var(--danger); }
+
+  .type-toggle{ display:flex; gap:8px; margin-bottom: 12px; }
+  .type-toggle button{
+    flex:1;
+    padding: 8px;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 12.5px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .type-toggle button.active{
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  .add-mod-btn{
+    width:100%;
+    padding: 12px;
+    border-radius: 9px;
+    border: 1px dashed var(--line);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13.5px;
+  }
+  .add-mod-btn:hover{ border-color: var(--accent); color: var(--accent); }
+
+  .save-btn{
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: #0a0a0a;
+    font-weight: 700;
+    font-size: 15.5px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .save-btn:hover{ background: #6fe66f; }
+  .save-btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+  .status{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    margin-top: 12px;
+    min-height: 16px;
+  }
+  .status.ok{ color: var(--accent); }
+  .status.err{ color: var(--danger); }
+  .status.pending{ color: var(--muted); }
+
+  .hint{ font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  @media (max-width: 560px){
+    .grid{ grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Kykylauncher</div>
+  <h1>Panneau de config</h1>
+  <p class="sub">Modifie l'IP, la version et la liste des mods. Tes amis reçoivent la mise à jour au prochain lancement du launcher, sans rien réinstaller.</p>
+
+  <div class="card">
+    <h2>Serveur</h2>
+    <div class="grid">
+      <div class="field">
+        <label>Adresse IP + port</label>
+        <input id="ip" type="text" placeholder="monserveur.exemple.com:25565">
+      </div>
+      <div class="field">
+        <label>Version Minecraft</label>
+        <input id="mc_version" type="text" placeholder="1.20.4">
+      </div>
+      <div class="field full">
+        <label>Mod loader</label>
+        <select id="loader">
+          <option value="fabric">Fabric</option>
+          <option value="forge">Forge</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Mods</h2>
+    <div id="mods-list"></div>
+    <button class="add-mod-btn" onclick="addModRow()">+ Ajouter un mod</button>
+  </div>
+
+  <button class="save-btn" id="saveBtn" onclick="saveConfig()">Enregistrer sur Firebase</button>
+  <div class="status pending" id="status">Connexion à Firebase...</div>
+
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBPq6Wfxzq02MfK69BFxHm9_FUjDGTmAcw",
+    authDomain: "kykychat-24c7f.firebaseapp.com",
+    databaseURL: "https://kykychat-24c7f-default-rtdb.firebaseio.com",
+    projectId: "kykychat-24c7f",
+    storageBucket: "kykychat-24c7f.firebasestorage.app",
+    messagingSenderId: "342562811927",
+    appId: "1:342562811927:web:0fed1e1f511c4fddcfec52"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const CONFIG_PATH = "kykylauncher";
+
+  let modCounter = 0;
+
+  function setStatus(text, kind){
+    const el = document.getElementById("status");
+    el.textContent = text;
+    el.className = "status " + (kind || "pending");
+  }
+
+  function modRowTemplate(id, data){
+    data = data || {};
+    const type = data.type || "github_release";
+    return `
+      <div class="mod-row" data-id="${id}">
+        <div class="mod-row-head">
+          <span class="mod-index">MOD</span>
+          <button class="remove-btn" onclick="removeModRow(${id})" title="Supprimer">✕</button>
+        </div>
+
+        <div class="field full">
+          <label>Nom (juste pour t'y retrouver)</label>
+          <input class="mod-name" type="text" placeholder="Sodium" value="${data.name || ""}">
+        </div>
+
+        <div class="type-toggle">
+          <button type="button" class="type-btn ${type === "github_release" ? "active" : ""}"
+                  onclick="setModType(${id}, 'github_release')">Release GitHub</button>
+          <button type="button" class="type-btn ${type === "direct_url" ? "active" : ""}"
+                  onclick="setModType(${id}, 'direct_url')">Lien direct .jar</button>
+        </div>
+
+        <div class="mod-fields-github" style="display:${type === "github_release" ? "block" : "none"}">
+          <div class="field full">
+            <label>Repo GitHub (owner/nom)</label>
+            <input class="mod-repo" type="text" placeholder="FabricMC/fabric" value="${data.repo || ""}">
+          </div>
+          <div class="field full">
+            <label>Filtre du fichier (si plusieurs .jar dans la release)</label>
+            <input class="mod-asset" type="text" placeholder="fabric-api" value="${data.asset_match || ""}">
+          </div>
+        </div>
+
+        <div class="mod-fields-url" style="display:${type === "direct_url" ? "block" : "none"}">
+          <div class="field full">
+            <label>Lien direct vers le .jar</label>
+            <input class="mod-url" type="text" placeholder="https://github.com/user/repo/releases/download/v1.0/mod.jar" value="${data.url || ""}">
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function addModRow(data){
+    modCounter++;
+    const id = modCounter;
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = modRowTemplate(id, data);
+    document.getElementById("mods-list").appendChild(wrapper.firstElementChild);
+  }
+
+  function removeModRow(id){
+    const row = document.querySelector(`.mod-row[data-id="${id}"]`);
+    if (row) row.remove();
+  }
+
+  function setModType(id, type){
+    const row = document.querySelector(`.mod-row[data-id="${id}"]`);
+    row.querySelectorAll(".type-btn").forEach(b => b.classList.remove("active"));
+    const target = type === "github_release" ? 0 : 1;
+    row.querySelectorAll(".type-btn")[target].classList.add("active");
+    row.querySelector(".mod-fields-github").style.display = type === "github_release" ? "block" : "none";
+    row.querySelector(".mod-fields-url").style.display = type === "direct_url" ? "block" : "none";
+    row.dataset.type = type;
+  }
+
+  function collectMods(){
+    const rows = document.querySelectorAll(".mod-row");
+    const mods = [];
+    rows.forEach(row => {
+      const isGithub = row.querySelector(".mod-fields-github").style.display !== "none";
+      const name = row.querySelector(".mod-name").value.trim();
+      if (!name) return;
+      if (isGithub){
+        const repo = row.querySelector(".mod-repo").value.trim();
+        const assetMatch = row.querySelector(".mod-asset").value.trim();
+        if (!repo) return;
+        mods.push({ name, type: "github_release", repo, asset_match: assetMatch });
+      } else {
+        const url = row.querySelector(".mod-url").value.trim();
+        if (!url) return;
+        mods.push({ name, type: "direct_url", url });
+      }
+    });
+    return mods;
+  }
+
+  function loadConfig(){
+    db.ref(CONFIG_PATH).get().then(snap => {
+      const data = snap.val();
+      if (data){
+        document.getElementById("ip").value = data.ip || "";
+        document.getElementById("mc_version").value = data.minecraft_version || "";
+        document.getElementById("loader").value = data.loader || "fabric";
+
+        let mods = data.mods || [];
+        if (!Array.isArray(mods)) mods = Object.values(mods);
+        document.getElementById("mods-list").innerHTML = "";
+        mods.forEach(m => addModRow(m));
+
+        setStatus("Config actuelle chargée depuis Firebase ✔", "ok");
+      } else {
+        setStatus("Aucune config existante — remplis le formulaire puis enregistre.", "pending");
+      }
+    }).catch(err => {
+      setStatus("Erreur de lecture Firebase : " + err.message, "err");
+    });
+  }
+
+  function saveConfig(){
+    const ip = document.getElementById("ip").value.trim();
+    const mcVersion = document.getElementById("mc_version").value.trim();
+    const loader = document.getElementById("loader").value;
+    const mods = collectMods();
+
+    if (!ip || !mcVersion){
+      setStatus("Renseigne au moins l'IP et la version Minecraft.", "err");
+      return;
+    }
+
+    const btn = document.getElementById("saveBtn");
+    btn.disabled = true;
+    setStatus("Enregistrement...", "pending");
+
+    db.ref(CONFIG_PATH).set({
+      ip: ip,
+      minecraft_version: mcVersion,
+      loader: loader,
+      mods: mods
+    }).then(() => {
+      setStatus(`Enregistré ✔ (${mods.length} mod(s))`, "ok");
+      btn.disabled = false;
+    }).catch(err => {
+      setStatus("Erreur d'enregistrement : " + err.message, "err");
+      btn.disabled = false;
+    });
+  }
+
+  loadConfig();
+</script>
+</body>
+</html>
