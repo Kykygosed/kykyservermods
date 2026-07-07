@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kykylauncher — Téléchargement</title>
+<style>
+  :root{
+    --bg: #101013;
+    --panel: #17171c;
+    --line: #2a2a33;
+    --text: #e9e9ee;
+    --muted: #8a8a93;
+    --accent: #5CD65C;
+    --accent-dim: #234d23;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    background:
+      radial-gradient(1000px 600px at 50% -10%, #1a2e1a 0%, transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding: 24px;
+  }
+
+  .card{
+    max-width: 460px;
+    width:100%;
+    text-align:center;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 48px 36px;
+  }
+
+  .logo{
+    width: 84px; height: 84px;
+    margin: 0 auto 20px;
+    border-radius: 20px;
+    background: #1e1e25;
+    border: 1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 34px;
+  }
+
+  h1{
+    font-size: 26px;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .sub{
+    color: var(--muted);
+    font-size: 14.5px;
+    margin: 0 0 32px;
+  }
+
+  .download-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #0a0a0a;
+    font-weight: 700;
+    font-size: 16px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .download-btn:hover{ background: #6fe66f; }
+  .download-btn:active{ transform: scale(0.98); }
+  .download-btn svg{ width: 18px; height: 18px; }
+
+  .meta{
+    margin-top: 18px;
+    font-family: 'Consolas', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .steps{
+    margin-top: 32px;
+    text-align: left;
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+  }
+  .steps h2{
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+  .steps ol{
+    margin: 0;
+    padding-left: 20px;
+    font-size: 13.5px;
+    color: #c7c7ce;
+    line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="logo">⛏</div>
+    <h1>Kykylauncher</h1>
+    <p class="sub">Le launcher Minecraft pour rejoindre le serveur en un clic.</p>
+
+    <a href="launcher.exe" download class="download-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Télécharger Kykylauncher.exe
+    </a>
+
+    <div class="meta">Windows · launcher.exe</div>
+
+    <div class="steps">
+      <h2>Installation</h2>
+      <ol>
+        <li>Télécharge le fichier ci-dessus</li>
+        <li>Si Windows affiche un avertissement SmartScreen, clique sur "Informations complémentaires" puis "Exécuter quand même"</li>
+        <li>Lance <strong>Kykylauncher.exe</strong>, entre ton pseudo et clique sur Jouer</li>
+      </ol>
+    </div>
+  </div>
+
+</body>
+</html>
